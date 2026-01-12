@@ -14,8 +14,11 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { fetchCryptoList } from "@/services/api"
 import { CryptoCurrency } from "@/lib/types"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function AppSidebar() {
+    const pathname = usePathname();
 
     const { data = [], isLoading, error } = useQuery<CryptoCurrency[]>({
         queryKey: ['crypto-list'],
@@ -35,16 +38,19 @@ export function AppSidebar() {
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {data?.map((item) => (
-                                <SidebarMenuItem key={item.id}>
-                                    <SidebarMenuButton asChild>
-                                        <div>
-                                            <img src={item.image} alt={item.name} width={24} height={24} />
-                                            <span>{item.name}</span>
-                                        </div>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                            {data?.map((item: CryptoCurrency) => {
+                                const isActive = pathname === `/crypto/${item.id}`;
+                                return (
+                                    <SidebarMenuItem key={item.id}>
+                                        <SidebarMenuButton asChild isActive={isActive}>
+                                            <Link href={`/crypto/${item.id}`}>
+                                                <img src={item.image} alt={item.name} className="w-5 h-5" />
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
