@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+'use client'
 
 import {
     Sidebar,
@@ -6,55 +6,42 @@ import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-// Menu items.
-const items = [
-    {
-        title: "Home",
-        url: "#",
-        icon: Home,
-    },
-    {
-        title: "Inbox",
-        url: "#",
-        icon: Inbox,
-    },
-    {
-        title: "Calendar",
-        url: "#",
-        icon: Calendar,
-    },
-    {
-        title: "Search",
-        url: "#",
-        icon: Search,
-    },
-    {
-        title: "Settings",
-        url: "#",
-        icon: Settings,
-    },
-]
+import { useQuery } from "@tanstack/react-query"
+import { fetchCryptoList } from "@/services/api"
+import { CryptoCurrency } from "@/lib/types"
 
 export function AppSidebar() {
+
+    const { data = [], isLoading, error } = useQuery<CryptoCurrency[]>({
+        queryKey: ['crypto-list'],
+        queryFn: fetchCryptoList,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    })
+
     return (
         <Sidebar>
+            <SidebarHeader className="border-b px-6 py-4">
+                <div className="flex items-center justify-center">
+                    <h1 className="text-xl font-bold">Chronos</h1>
+                </div>
+            </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
+                            {data?.map((item) => (
+                                <SidebarMenuItem key={item.id}>
                                     <SidebarMenuButton asChild>
-                                        <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </a>
+                                        <div>
+                                            <img src={item.image} alt={item.name} width={24} height={24} />
+                                            <span>{item.name}</span>
+                                        </div>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
