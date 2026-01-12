@@ -3,11 +3,15 @@ import PriceTrendChart from "@/components/charts/PriceTrendChart";
 import MarketCapChart from "@/components/charts/MarketCapChart";
 import { fetchMarketData } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import TradingVolumeChart from "@/components/charts/TradingVolumeChart";
+import { getHistoryFromLocalStorage } from "@/lib/local-storage";
+import { CryptoHistoryItem } from "@/lib/types";
+import { formatTimeAgo } from "@/lib/time-utils";
 
 export default function CryptoDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const [history, setHistory] = useState<CryptoHistoryItem[]>([]);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['crypto-market-data', id],
@@ -15,6 +19,11 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
         staleTime: 1000 * 60 * 5, // 5 minutes
         // refetchInterval: 30000, // Poll every 30 seconds (for testing)
     })
+
+    useEffect(() => {
+        const historyData = getHistoryFromLocalStorage();
+        setHistory(historyData);
+    }, []);
 
     if (isLoading) {
         return (
@@ -61,19 +70,20 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
 
                 <div className="w-[25%]">
                     <div className="sticky top-6">
-                        <div className="border rounded-lg p-4 bg-white shadow-sm">
+                        <div className="border rounded-lg p-4  shadow-sm">
                             <h2 className="text-lg font-semibold mb-4">Search History</h2>
                             <div className="space-y-2">
-                                {/* Dummy history items */}
-                                <div className="p-3 hover:bg-gray-50 rounded-md cursor-pointer border border-gray-100 transition-colors">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="font-medium text-sm">Bitcoin</p>
-                                            <p className="text-xs text-gray-500">2 mins ago</p>
+                                {history.map((item) => (
+                                    <div key={item.id} className="p-3 rounded-md cursor-pointer border border-gray-100 transition-colors">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <p className="font-medium text-sm">{item.name}</p>
+                                                <p className="text-xs text-gray-500">{formatTimeAgo(item.timestamp)}</p>
+                                            </div>
+                                            <span className="text-xs text-gray-400">{item.id}</span>
                                         </div>
-                                        <span className="text-xs text-gray-400">BTC</span>
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
