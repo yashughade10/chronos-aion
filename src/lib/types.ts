@@ -38,4 +38,10 @@ interface ChartProps {
     title?: string;
 }
 
-export type { CryptoCurrency, CryptoHistoryItem, ChartProps };
+interface LiveSyncState {
+    isLiveSync: boolean;
+    toggleLiveSync: () => void;
+    setLiveSync: (value: boolean) => void;
+}
+
+export type { CryptoCurrency, CryptoHistoryItem, ChartProps, LiveSyncState };

@@ -8,16 +8,18 @@ import TradingVolumeChart from "@/components/charts/TradingVolumeChart";
 import { getHistoryFromLocalStorage } from "@/lib/local-storage";
 import { CryptoHistoryItem } from "@/lib/types";
 import { formatTimeAgo } from "@/lib/time-utils";
+import { useLiveSyncStore } from "@/stores/live-sync-store";
 
 export default function CryptoDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const [history, setHistory] = useState<CryptoHistoryItem[]>([]);
+    const { isLiveSync } = useLiveSyncStore();
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['crypto-market-data', id],
         queryFn: () => fetchMarketData(id),
         staleTime: 1000 * 60 * 5, // 5 minutes
-        // refetchInterval: 30000, // Poll every 30 seconds (for testing)
+        refetchInterval: isLiveSync ? 5000 : false, // Poll every 5 seconds when live sync is on
     })
 
     useEffect(() => {
