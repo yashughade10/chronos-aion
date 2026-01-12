@@ -27,4 +27,15 @@ interface CryptoCurrency {
     last_updated: string;
 }
 
-export type { CryptoCurrency };
+interface CryptoHistoryItem {
+    id: string;
+    name: string;
+    timestamp: string;
+}
+
+interface ChartProps {
+    data: [number, number][]; // [timestamp, price]
+    title?: string;
+}
+
+export type { CryptoCurrency, CryptoHistoryItem, ChartProps };
