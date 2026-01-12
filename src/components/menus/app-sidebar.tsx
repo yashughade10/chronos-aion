@@ -16,6 +16,7 @@ import { fetchCryptoList } from "@/services/api"
 import { CryptoCurrency } from "@/lib/types"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { saveToHistoryToLocalStorage } from "@/lib/local-storage"
 
 export function AppSidebar() {
     const pathname = usePathname();
@@ -25,6 +26,10 @@ export function AppSidebar() {
         queryFn: fetchCryptoList,
         staleTime: 1000 * 60 * 5, // 5 minutes
     })
+
+    const handleClick = (item: CryptoCurrency) => {
+        saveToHistoryToLocalStorage(item.id, item.name);
+    }
 
     return (
         <Sidebar>
@@ -43,7 +48,10 @@ export function AppSidebar() {
                                 return (
                                     <SidebarMenuItem key={item.id}>
                                         <SidebarMenuButton asChild isActive={isActive}>
-                                            <Link href={`/crypto/${item.id}`}>
+                                            <Link
+                                                href={`/crypto/${item.id}`}
+                                                onClick={() => handleClick(item)}
+                                            >
                                                 <img src={item.image} alt={item.name} className="w-5 h-5" />
                                                 <span>{item.name}</span>
                                             </Link>
@@ -55,6 +63,6 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-        </Sidebar>
+        </Sidebar >
     )
 }
