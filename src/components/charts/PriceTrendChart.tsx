@@ -3,6 +3,19 @@ import { ChartProps } from '@/lib/types';
 import ReactECharts from 'echarts-for-react';
 import { useMemo } from 'react';
 
+function calculateMovingAverage(data: [number, number][], window = 10): (number | null)[] {
+    return data.map((item, index) => {
+        if (index < window - 1) return null;
+
+        const slice = data
+            .slice(index - window + 1, index + 1)
+            .map(d => d[1]);
+
+        const avg = slice.reduce((a, b) => a + b, 0) / window;
+        return avg;
+    });
+}
+
 export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: ChartProps) {
     const option = useMemo(() => {
 
@@ -16,6 +29,9 @@ export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: C
         });
 
         const prices = data.map(item => item[1]);
+
+        // Calculate moving average
+        const movingAverage = calculateMovingAverage(data, 10);
 
         // Calculate min and max for dynamic Y-axis scaling
         const minPrice = Math.min(...prices);
@@ -34,16 +50,31 @@ export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: C
                     fontWeight: 'bold'
                 }
             },
+            legend: {
+                data: ['Price', 'MA(10)'],
+                top: 'top',
+                right: 'right',
+                orient: 'horizontal',
+                textStyle: {
+                    fontSize: 12
+                }
+            },
             tooltip: {
                 trigger: 'axis',
                 formatter: (params: any) => {
-                    const price = parseFloat(params[0].value).toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'INR',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
+                    let tooltip = `${params[0].axisValue}<br/>`;
+                    params.forEach((param: any) => {
+                        if (param.value !== null) {
+                            const value = parseFloat(param.value).toLocaleString('en-US', {
+                                style: 'currency',
+                                currency: 'INR',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            tooltip += `${param.marker} ${param.seriesName}: ${value}<br/>`;
+                        }
                     });
-                    return `${params[0].axisValue}<br/>Price: ${price}`;
+                    return tooltip;
                 }
             },
             grid: {
@@ -108,6 +139,21 @@ export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: C
                         }
                     },
                     data: prices
+                },
+                {
+                    name: 'MA(10)',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    lineStyle: {
+                        color: '#f59e0b',
+                        width: 2,
+                        type: 'dashed'
+                    },
+                    itemStyle: {
+                        color: '#f59e0b'
+                    },
+                    data: movingAverage
                 }
             ]
         };
