@@ -4,6 +4,13 @@ const fetchCryptoList = async () => {
     return data;
 }
 
+const fetchMarketData = async (coinId: string) => {
+    const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=inr&days=1`);
+    const data = await response.json();
+    return data;
+}
+
 export {
-    fetchCryptoList
+    fetchCryptoList,
+    fetchMarketData
 };
