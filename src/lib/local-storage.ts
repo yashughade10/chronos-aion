@@ -40,21 +40,4 @@ const getHistoryFromLocalStorage = (): CryptoHistoryItem[] => {
     return JSON.parse(decrypted) as CryptoHistoryItem[];
 }
 
-// This functions retrieves data from local storage
-const getDataFromLocalStorage = (key: string): string | null => {
-    const encryptedValue = window.localStorage.getItem(key);
-    if (encryptedValue) {
-        const bytes = CryptoJS.AES.decrypt(encryptedValue, secretKey);
-        const decryptedValue = bytes.toString(CryptoJS.enc.Utf8);
-        return decryptedValue;
-    }
-    return null;
-};
-
-// This function saves data to local storage
-const setDataInLocalStorage = (key: string, value: string): void => {
-    const encryptedValue = CryptoJS.AES.encrypt(value, secretKey).toString();
-    return window.localStorage.setItem(key, encryptedValue);
-};
-
-export { getDataFromLocalStorage, setDataInLocalStorage, saveToHistoryToLocalStorage, getHistoryFromLocalStorage };
+export { saveToHistoryToLocalStorage, getHistoryFromLocalStorage };
