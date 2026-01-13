@@ -15,6 +15,7 @@ import { addToWatchlist, getWatchlistItem, isInWatchlist, removeFromWatchlist, u
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function CryptoDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -91,8 +92,20 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
     }
 
     return (
-        <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
+        <motion.div
+            key={id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="p-6"
+        >
+            <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="flex items-center justify-between mb-4"
+            >
                 <div>
                     <h1 className="text-2xl font-bold">Crypto Details</h1>
                     <p className="text-gray-600">Viewing cryptocurrency: {id}</p>
@@ -110,71 +123,92 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                         </Button>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             <div className="flex gap-2">
                 <div className=" w-[75%]">
                     <div className="space-y-10 my-10">
-                        <ChartContainer
-                            title={`${id.toUpperCase()} Price Trend (24h)`}
-                            isLoading={isLoading}
-                            error={error}
-                            isEmpty={!data?.prices || data.prices.length === 0}
-                            emptyMessage="No price data available"
-                        >
-                            {data?.prices && data.prices.length > 0 && (
-                                <PriceTrendChart data={data.prices} />
-                            )}
-                        </ChartContainer>
+                        <AnimatePresence mode="wait" key={`price-${id}`}>
+                            <ChartContainer
+                                title={`${id.toUpperCase()} Price Trend (24h)`}
+                                isLoading={isLoading}
+                                error={error}
+                                isEmpty={!data?.prices || data.prices.length === 0}
+                                emptyMessage="No price data available"
+                            >
+                                {data?.prices && data.prices.length > 0 && (
+                                    <PriceTrendChart data={data.prices} />
+                                )}
+                            </ChartContainer>
+                        </AnimatePresence>
                     </div>
 
                     <div className="space-y-10 my-10">
-                        <ChartContainer
-                            title={`${id.toUpperCase()} Trading Volume (24h)`}
-                            isLoading={isLoading}
-                            error={error}
-                            isEmpty={!data?.total_volumes || data.total_volumes.length === 0}
-                            emptyMessage="No volume data available"
-                        >
-                            {data?.total_volumes && data.total_volumes.length > 0 && (
-                                <TradingVolumeChart data={data.total_volumes} />
-                            )}
-                        </ChartContainer>
+                        <AnimatePresence mode="wait" key={`volume-${id}`}>
+                            <ChartContainer
+                                title={`${id.toUpperCase()} Trading Volume (24h)`}
+                                isLoading={isLoading}
+                                error={error}
+                                isEmpty={!data?.total_volumes || data.total_volumes.length === 0}
+                                emptyMessage="No volume data available"
+                            >
+                                {data?.total_volumes && data.total_volumes.length > 0 && (
+                                    <TradingVolumeChart data={data.total_volumes} />
+                                )}
+                            </ChartContainer>
+                        </AnimatePresence>
                     </div>
 
                     <div className="space-y-10 my-10">
-                        <ChartContainer
-                            title={`${id.toUpperCase()} Market Cap Trend (24h)`}
-                            isLoading={isLoading}
-                            error={error}
-                            isEmpty={!data?.market_caps || data.market_caps.length === 0}
-                            emptyMessage="No market cap data available"
-                        >
-                            {data?.market_caps && data.market_caps.length > 0 && (
-                                <MarketCapChart data={data.market_caps} />
-                            )}
-                        </ChartContainer>
+                        <AnimatePresence mode="wait" key={`marketcap-${id}`}>
+                            <ChartContainer
+                                title={`${id.toUpperCase()} Market Cap Trend (24h)`}
+                                isLoading={isLoading}
+                                error={error}
+                                isEmpty={!data?.market_caps || data.market_caps.length === 0}
+                                emptyMessage="No market cap data available"
+                            >
+                                {data?.market_caps && data.market_caps.length > 0 && (
+                                    <MarketCapChart data={data.market_caps} />
+                                )}
+                            </ChartContainer>
+                        </AnimatePresence>
                     </div>
                 </div>
 
                 <div className="w-[25%]">
                     <div className="sticky top-6">
-                        <div className="border rounded-lg p-4  shadow-sm">
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="border rounded-lg p-4  shadow-sm"
+                        >
                             <h2 className="text-lg font-semibold mb-4">Search History</h2>
                             <div className="space-y-2">
-                                {history.map((item) => (
-                                    <div key={item.id} className="p-3 rounded-md cursor-pointer border border-gray-100 transition-colors">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div>
-                                                <p className="font-medium text-sm">{item.name}</p>
-                                                <p className="text-xs text-gray-500">{formatTimeAgo(item.timestamp)}</p>
+                                <AnimatePresence>
+                                    {history.map((item, index) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                                            whileHover={{ scale: 1.02, x: 4 }}
+                                            className="p-3 rounded-md cursor-pointer border border-gray-100 transition-colors"
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div>
+                                                    <p className="font-medium text-sm">{item.name}</p>
+                                                    <p className="text-xs text-gray-500">{formatTimeAgo(item.timestamp)}</p>
+                                                </div>
+                                                <span className="text-xs text-gray-400">{item.id}</span>
                                             </div>
-                                            <span className="text-xs text-gray-400">{item.id}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>
@@ -185,6 +219,6 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                 onConfirm={handleAddToWatchlist}
                 cryptoName={id.toUpperCase()}
             />
-        </div>
+        </motion.div>
     );
 }
