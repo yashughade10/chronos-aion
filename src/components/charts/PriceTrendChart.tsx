@@ -1,4 +1,5 @@
 'use client'
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ChartProps } from '@/lib/types';
 import ReactECharts from 'echarts-for-react';
 import { useMemo } from 'react';
@@ -17,6 +18,8 @@ function calculateMovingAverage(data: [number, number][], window = 10): (number 
 }
 
 export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: ChartProps) {
+    const isMobile = useIsMobile();
+
     const option = useMemo(() => {
 
         const timestamps = data.map(item => {
@@ -154,7 +157,8 @@ export default function PriceTrendChart({ data, title = "Price Trend (24h)" }: C
     return (
         <ReactECharts
             option={option}
-            style={{ height: '500px', width: '100%' }}
+            style={{ height: isMobile ? '100%' : '500px', width: '100%', minHeight: '300px' }}
+            className="h-75 sm:h-100 md:h-112.5 lg:h-125"
             notMerge={true}
             lazyUpdate={true}
         />

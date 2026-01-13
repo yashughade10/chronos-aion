@@ -98,26 +98,26 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
-            className="p-6"
+            className="p-4 md:p-6"
         >
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
-                className="flex items-center justify-between mb-4"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
             >
                 <div>
-                    <h1 className="text-2xl font-bold">Crypto Details</h1>
-                    <p className="text-gray-600">Viewing cryptocurrency: {id}</p>
+                    <h1 className="text-xl md:text-2xl font-bold">Crypto Details</h1>
+                    <p className="text-sm md:text-base text-gray-600">Viewing cryptocurrency: {id}</p>
                 </div>
-                <div>
+                <div className="w-full sm:w-auto">
                     {inWatchList ? (
-                        <Button onClick={handleRemoveFromWatchlist} variant="outline">
+                        <Button onClick={handleRemoveFromWatchlist} variant="outline" className="w-full sm:w-auto">
                             <BellOff className="mr-2 h-4 w-4" />
                             Remove from Watchlist
                         </Button>
                     ) : (
-                        <Button onClick={() => setDialogOpen(true)}>
+                        <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto">
                             <Bell className="mr-2 h-4 w-4" />
                             Add to Watchlist
                         </Button>
@@ -125,9 +125,9 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                 </div>
             </motion.div>
 
-            <div className="flex gap-2">
-                <div className=" w-[75%]">
-                    <div className="space-y-10 my-10">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+                <div className="w-full lg:w-[75%]">
+                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`price-${id}`}>
                             <ChartContainer
                                 title={`${id.toUpperCase()} Price Trend (24h)`}
@@ -143,7 +143,7 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                         </AnimatePresence>
                     </div>
 
-                    <div className="space-y-10 my-10">
+                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`volume-${id}`}>
                             <ChartContainer
                                 title={`${id.toUpperCase()} Trading Volume (24h)`}
@@ -159,7 +159,7 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                         </AnimatePresence>
                     </div>
 
-                    <div className="space-y-10 my-10">
+                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`marketcap-${id}`}>
                             <ChartContainer
                                 title={`${id.toUpperCase()} Market Cap Trend (24h)`}
@@ -176,15 +176,15 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                     </div>
                 </div>
 
-                <div className="w-[25%]">
-                    <div className="sticky top-6">
+                <div className="w-full lg:w-[25%]">
+                    <div className="lg:sticky lg:top-6">
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="border rounded-lg p-4  shadow-sm"
+                            className="border rounded-lg p-4 shadow-sm"
                         >
-                            <h2 className="text-lg font-semibold mb-4">Search History</h2>
+                            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Search History</h2>
                             <div className="space-y-2">
                                 <AnimatePresence>
                                     {history.map((item, index) => (
@@ -195,14 +195,14 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                                             exit={{ opacity: 0, x: 20 }}
                                             transition={{ duration: 0.3, delay: index * 0.05 }}
                                             whileHover={{ scale: 1.02, x: 4 }}
-                                            className="p-3 rounded-md cursor-pointer border border-gray-100 transition-colors"
+                                            className="p-2 md:p-3 rounded-md cursor-pointer border border-gray-100 transition-colors"
                                         >
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div>
-                                                    <p className="font-medium text-sm">{item.name}</p>
+                                            <div className="flex items-center justify-between mb-1 md:mb-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-medium text-xs md:text-sm truncate">{item.name}</p>
                                                     <p className="text-xs text-gray-500">{formatTimeAgo(item.timestamp)}</p>
                                                 </div>
-                                                <span className="text-xs text-gray-400">{item.id}</span>
+                                                <span className="text-xs text-gray-400 ml-2 shrink-0">{item.id}</span>
                                             </div>
                                         </motion.div>
                                     ))}
