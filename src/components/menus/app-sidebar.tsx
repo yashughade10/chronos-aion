@@ -16,6 +16,7 @@ import { CryptoCurrency } from "@/lib/types"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { saveToHistoryToLocalStorage } from "@/lib/local-storage"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function AppSidebar() {
     const pathname = usePathname();
@@ -41,22 +42,40 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {data?.map((item: CryptoCurrency) => {
-                                const isActive = pathname === `/crypto/${item.id}`;
-                                return (
-                                    <SidebarMenuItem key={item.id}>
-                                        <SidebarMenuButton asChild isActive={isActive}>
-                                            <Link
-                                                href={`/crypto/${item.id}`}
-                                                onClick={() => handleClick(item)}
-                                            >
-                                                <img src={item.image} alt={item.name} className="w-5 h-5" />
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </SidebarMenuButton>
+                            {isLoading ? (
+                                // Show skeleton loaders while loading
+                                Array.from({ length: 10 }).map((_, index) => (
+                                    <SidebarMenuItem key={index}>
+                                        <div className="flex items-center gap-3 px-3 py-2">
+                                            <Skeleton className="h-5 w-5 rounded-full" />
+                                            <Skeleton className="h-4 w-24" />
+                                        </div>
                                     </SidebarMenuItem>
-                                );
-                            })}
+                                ))
+                            ) : error ? (
+                                // Show error message
+                                <div className="px-3 py-4 text-sm text-red-500">
+                                    Failed to load cryptocurrencies
+                                </div>
+                            ) : (
+                                // Show actual crypto list
+                                data?.map((item: CryptoCurrency) => {
+                                    const isActive = pathname === `/crypto/${item.id}`;
+                                    return (
+                                        <SidebarMenuItem key={item.id}>
+                                            <SidebarMenuButton asChild isActive={isActive}>
+                                                <Link
+                                                    href={`/crypto/${item.id}`}
+                                                    onClick={() => handleClick(item)}
+                                                >
+                                                    <img src={item.image} alt={item.name} className="w-5 h-5" />
+                                                    <span>{item.name}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    );
+                                })
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
