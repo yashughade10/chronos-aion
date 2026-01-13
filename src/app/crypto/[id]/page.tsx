@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 
 export default function CryptoDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -23,6 +24,11 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
     const [inWatchList, setInWatchList] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const { isLiveSync } = useLiveSyncStore();
+
+    // Intersection observers for lazy-loading charts
+    const priceChart = useIntersectionObserver({ threshold: 0.5 });
+    const volumeChart = useIntersectionObserver({ threshold: 0.5 });
+    const marketCapChart = useIntersectionObserver({ threshold: 0.5 });
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['crypto-market-data', id],
@@ -127,51 +133,69 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
 
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
                 <div className="w-full lg:w-[75%]">
-                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
+                    <div ref={priceChart.elementRef} className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`price-${id}`}>
-                            <ChartContainer
-                                title={`${id.toUpperCase()} Price Trend (24h)`}
-                                isLoading={isLoading}
-                                error={error}
-                                isEmpty={!data?.prices || data.prices.length === 0}
-                                emptyMessage="No price data available"
-                            >
-                                {data?.prices && data.prices.length > 0 && (
-                                    <PriceTrendChart data={data.prices} />
-                                )}
-                            </ChartContainer>
+                            {priceChart.isVisible ? (
+                                <ChartContainer
+                                    title={`${id.toUpperCase()} Price Trend (24h)`}
+                                    isLoading={isLoading}
+                                    error={error}
+                                    isEmpty={!data?.prices || data.prices.length === 0}
+                                    emptyMessage="No price data available"
+                                >
+                                    {data?.prices && data.prices.length > 0 && (
+                                        <PriceTrendChart data={data.prices} />
+                                    )}
+                                </ChartContainer>
+                            ) : (
+                                <div className="border rounded-lg p-6 shadow-sm h-[300px] md:h-[400px] lg:h-[500px] flex items-center justify-center">
+                                    <p className="text-gray-400 text-sm">Loading chart...</p>
+                                </div>
+                            )}
                         </AnimatePresence>
                     </div>
 
-                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
+                    <div ref={volumeChart.elementRef} className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`volume-${id}`}>
-                            <ChartContainer
-                                title={`${id.toUpperCase()} Trading Volume (24h)`}
-                                isLoading={isLoading}
-                                error={error}
-                                isEmpty={!data?.total_volumes || data.total_volumes.length === 0}
-                                emptyMessage="No volume data available"
-                            >
-                                {data?.total_volumes && data.total_volumes.length > 0 && (
-                                    <TradingVolumeChart data={data.total_volumes} />
-                                )}
-                            </ChartContainer>
+                            {volumeChart.isVisible ? (
+                                <ChartContainer
+                                    title={`${id.toUpperCase()} Trading Volume (24h)`}
+                                    isLoading={isLoading}
+                                    error={error}
+                                    isEmpty={!data?.total_volumes || data.total_volumes.length === 0}
+                                    emptyMessage="No volume data available"
+                                >
+                                    {data?.total_volumes && data.total_volumes.length > 0 && (
+                                        <TradingVolumeChart data={data.total_volumes} />
+                                    )}
+                                </ChartContainer>
+                            ) : (
+                                <div className="border rounded-lg p-6 shadow-sm h-[300px] md:h-[400px] lg:h-[500px] flex items-center justify-center">
+                                    <p className="text-gray-400 text-sm">Loading chart...</p>
+                                </div>
+                            )}
                         </AnimatePresence>
                     </div>
 
-                    <div className="space-y-6 md:space-y-10 my-6 md:my-10">
+                    <div ref={marketCapChart.elementRef} className="space-y-6 md:space-y-10 my-6 md:my-10">
                         <AnimatePresence mode="wait" key={`marketcap-${id}`}>
-                            <ChartContainer
-                                title={`${id.toUpperCase()} Market Cap Trend (24h)`}
-                                isLoading={isLoading}
-                                error={error}
-                                isEmpty={!data?.market_caps || data.market_caps.length === 0}
-                                emptyMessage="No market cap data available"
-                            >
-                                {data?.market_caps && data.market_caps.length > 0 && (
-                                    <MarketCapChart data={data.market_caps} />
-                                )}
-                            </ChartContainer>
+                            {marketCapChart.isVisible ? (
+                                <ChartContainer
+                                    title={`${id.toUpperCase()} Market Cap Trend (24h)`}
+                                    isLoading={isLoading}
+                                    error={error}
+                                    isEmpty={!data?.market_caps || data.market_caps.length === 0}
+                                    emptyMessage="No market cap data available"
+                                >
+                                    {data?.market_caps && data.market_caps.length > 0 && (
+                                        <MarketCapChart data={data.market_caps} />
+                                    )}
+                                </ChartContainer>
+                            ) : (
+                                <div className="border rounded-lg p-6 shadow-sm h-[300px] md:h-[400px] lg:h-[500px] flex items-center justify-center">
+                                    <p className="text-gray-400 text-sm">Loading chart...</p>
+                                </div>
+                            )}
                         </AnimatePresence>
                     </div>
                 </div>
