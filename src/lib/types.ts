@@ -44,4 +44,19 @@ interface LiveSyncState {
     setLiveSync: (value: boolean) => void;
 }
 
-export type { CryptoCurrency, CryptoHistoryItem, ChartProps, LiveSyncState };
+interface WatchlistItem {
+    id: string;
+    name: string;
+    threshold: number; // percentage
+    lastPrice: number;
+    addedAt: string;
+}
+
+interface AddToWatchlistDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onConfirm: (threshold: number) => void;
+    cryptoName: string;
+}
+
+export type { CryptoCurrency, CryptoHistoryItem, ChartProps, LiveSyncState, WatchlistItem, AddToWatchlistDialogProps };

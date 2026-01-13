@@ -5,14 +5,21 @@ import { fetchMarketData } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
 import TradingVolumeChart from "@/components/charts/TradingVolumeChart";
+import AddToWatchlistDialog from "@/components/AddToWatchlistDialog";
 import { getHistoryFromLocalStorage } from "@/lib/local-storage";
 import { CryptoHistoryItem } from "@/lib/types";
 import { formatTimeAgo } from "@/lib/time-utils";
 import { useLiveSyncStore } from "@/stores/live-sync-store";
+import { addToWatchlist, getWatchlistItem, isInWatchlist, removeFromWatchlist, updateWatchlistPrice } from "@/lib/watchlist";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Bell, BellOff } from "lucide-react";
 
 export default function CryptoDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const [history, setHistory] = useState<CryptoHistoryItem[]>([]);
+    const [inWatchList, setInWatchList] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const { isLiveSync } = useLiveSyncStore();
 
     const { data, isLoading, error } = useQuery({
@@ -25,7 +32,62 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
     useEffect(() => {
         const historyData = getHistoryFromLocalStorage();
         setHistory(historyData);
-    }, []);
+
+        // Check if the current crypto is in the watchlist
+        setInWatchList(isInWatchlist(id));
+    }, [id]);
+
+    // Monitoring price change
+    useEffect(() => {
+        if (!data?.prices || data.prices.length === 0) return;
+
+        const watchlistItem = getWatchlistItem(id);
+        if (!watchlistItem) return;
+
+        const currentPrice = data.prices[data.prices.length - 1][1];
+
+        // check if we should alert the user
+        const shouldAlert = updateWatchlistPrice(id, currentPrice);
+
+        if (shouldAlert) {
+            const priceChange = Math.abs((currentPrice - watchlistItem.lastPrice) / watchlistItem.lastPrice * 100);
+            const direction = currentPrice > watchlistItem.lastPrice ? 'increased' : 'decreased';
+
+            toast.warning(`Price Alert: ${id.toUpperCase()}`, {
+                description: `Price ${direction} by ${priceChange.toFixed(2)}% (Threshold: ${watchlistItem.threshold}%)`,
+                duration: 5000,
+            });
+        }
+    }, [data, id]);
+
+    // This function adds item to watchlist
+    const handleAddToWatchlist = (threshold: number) => {
+        if (!data?.prices || data.prices.length === 0) {
+            toast.error("Cannot add to watchlist", {
+                description: "No price data available."
+            });
+            return;
+        }
+
+        const currentPrice = data.prices[data.prices.length - 1][1];
+        addToWatchlist(id, id.toUpperCase(), threshold, currentPrice);
+        setInWatchList(true);
+        setDialogOpen(false);
+
+        toast.success('Added to Watchlist', {
+            description: `You'll be notified when ${id.toUpperCase()} price changes by more than ${threshold}%`
+        });
+    }
+
+    // This function removes item from watchlist
+    const handleRemoveFromWatchlist = () => {
+        removeFromWatchlist(id);
+        setInWatchList(false);
+
+        toast.info('Removed from Watchlist', {
+            description: `${id.toUpperCase()} has been removed from your watchlist.`
+        });
+    }
 
     if (isLoading) {
         return (
@@ -46,8 +108,25 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Crypto Details</h1>
-            <p className="mb-6 text-gray-600">Viewing cryptocurrency: {id}</p>
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <h1 className="text-2xl font-bold">Crypto Details</h1>
+                    <p className="text-gray-600">Viewing cryptocurrency: {id}</p>
+                </div>
+                <div>
+                    {inWatchList ? (
+                        <Button onClick={handleRemoveFromWatchlist} variant="outline">
+                            <BellOff className="mr-2 h-4 w-4" />
+                            Remove from Watchlist
+                        </Button>
+                    ) : (
+                        <Button onClick={() => setDialogOpen(true)}>
+                            <Bell className="mr-2 h-4 w-4" />
+                            Add to Watchlist
+                        </Button>
+                    )}
+                </div>
+            </div>
 
             <div className="flex gap-2">
                 <div className=" w-[75%]">
@@ -92,6 +171,12 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
                 </div>
             </div>
 
+            <AddToWatchlistDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                onConfirm={handleAddToWatchlist}
+                cryptoName={id.toUpperCase()}
+            />
         </div>
     );
 }
