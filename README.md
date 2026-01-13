@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chronos: The Interactive Time-Series Navigator
 
-## Getting Started
+## Setup and Run Instructions
 
-First, run the development server:
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/yashughade10/chronos-aion.git
+    cd chronos-aion
+    ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    The app will be available at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design Choices & Architecture
 
-## Learn More
+### State Management
+- **Zustand**: Global state for live sync toggle with localStorage persistence
+- **TanStack Query**: Server state management with automatic caching, refetching, and conditional polling
+- **Local Storage**: Search history and watchlist data
 
-To learn more about Next.js, take a look at the following resources:
+### Performance Optimizations
+- **Request Cancellation**: AbortController prevents race conditions when rapidly switching between tabs
+- **Memoization**: useMemo hooks avoid unnecessary recalculations in chart components
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Data Flow
 
-## Deploy on Vercel
+1. User selects cryptocurrency
+2. ID stored in localStorage (FIFO, max 5 items)
+3. TanStack Query fetches data from CoinGecko API
+4. AbortController cancels any pending requests
+5. Charts render
+6. If in watchlist, price monitoring begins
+7. Threshold limit triggers toast alert
+8. Live sync toggle controls polling interval (5s when active)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Integration
+
+**Data Source**: CoinGecko API  
+**Endpoints**:
+- `/coins/markets` - List of cryptocurrencies
+- `/coins/{id}/market_chart` - Historical price, volume, and market cap data
+
+---
+
+## Link to Deployed Application
+[Chronos ](https://chronos-aion.vercel.app/)
