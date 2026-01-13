@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 interface CryptoCurrency {
     id: string;
     symbol: string;
@@ -59,4 +61,23 @@ interface AddToWatchlistDialogProps {
     cryptoName: string;
 }
 
-export type { CryptoCurrency, CryptoHistoryItem, ChartProps, LiveSyncState, WatchlistItem, AddToWatchlistDialogProps };
+interface ChartContainerProps {
+    title?: string;
+    isLoading?: boolean;
+    error?: Error | null;
+    isEmpty?: boolean;
+    emptyMessage?: string;
+    children: ReactNode;
+    className?: string;
+    headerActions?: ReactNode;
+}
+
+export type {
+    CryptoCurrency,
+    CryptoHistoryItem,
+    ChartProps,
+    LiveSyncState,
+    WatchlistItem,
+    AddToWatchlistDialogProps,
+    ChartContainerProps
+};

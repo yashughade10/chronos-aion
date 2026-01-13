@@ -1,6 +1,7 @@
 'use client'
 import PriceTrendChart from "@/components/charts/PriceTrendChart";
 import MarketCapChart from "@/components/charts/MarketCapChart";
+import ChartContainer from "@/components/charts/ChartContainer";
 import { fetchMarketData } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { use, useEffect, useState } from "react";
@@ -89,23 +90,6 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
         });
     }
 
-    if (isLoading) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4 text-red-500">Error loading data</h1>
-                <p>{error.message}</p>
-            </div>
-        );
-    }
-
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -131,21 +115,45 @@ export default function CryptoDetailPage({ params }: { params: Promise<{ id: str
             <div className="flex gap-2">
                 <div className=" w-[75%]">
                     <div className="space-y-10 my-10">
-                        {data?.prices && data.prices.length > 0 && (
-                            <PriceTrendChart data={data.prices} title={`${id.toUpperCase()} Price Trend (24h)`} />
-                        )}
+                        <ChartContainer
+                            title={`${id.toUpperCase()} Price Trend (24h)`}
+                            isLoading={isLoading}
+                            error={error}
+                            isEmpty={!data?.prices || data.prices.length === 0}
+                            emptyMessage="No price data available"
+                        >
+                            {data?.prices && data.prices.length > 0 && (
+                                <PriceTrendChart data={data.prices} />
+                            )}
+                        </ChartContainer>
                     </div>
 
                     <div className="space-y-10 my-10">
-                        {data?.total_volumes && data.total_volumes.length > 0 && (
-                            <TradingVolumeChart data={data.total_volumes} title={`${id.toUpperCase()} Trading Volume (24h)`} />
-                        )}
+                        <ChartContainer
+                            title={`${id.toUpperCase()} Trading Volume (24h)`}
+                            isLoading={isLoading}
+                            error={error}
+                            isEmpty={!data?.total_volumes || data.total_volumes.length === 0}
+                            emptyMessage="No volume data available"
+                        >
+                            {data?.total_volumes && data.total_volumes.length > 0 && (
+                                <TradingVolumeChart data={data.total_volumes} />
+                            )}
+                        </ChartContainer>
                     </div>
 
                     <div className="space-y-10 my-10">
-                        {data?.market_caps && data.market_caps.length > 0 && (
-                            <MarketCapChart data={data.market_caps} title={`${id.toUpperCase()} Market Cap Trend (24h)`} />
-                        )}
+                        <ChartContainer
+                            title={`${id.toUpperCase()} Market Cap Trend (24h)`}
+                            isLoading={isLoading}
+                            error={error}
+                            isEmpty={!data?.market_caps || data.market_caps.length === 0}
+                            emptyMessage="No market cap data available"
+                        >
+                            {data?.market_caps && data.market_caps.length > 0 && (
+                                <MarketCapChart data={data.market_caps} />
+                            )}
+                        </ChartContainer>
                     </div>
                 </div>
 

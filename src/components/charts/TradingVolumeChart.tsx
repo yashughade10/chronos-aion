@@ -24,14 +24,6 @@ export default function TradingVolumeChart({ data, title = "Trading Volume (24h)
         const padding = priceRange * 0.02;
 
         return {
-            title: {
-                text: title,
-                left: 'left',
-                textStyle: {
-                    fontSize: 16,
-                    fontWeight: 'bold'
-                }
-            },
             tooltip: {
                 trigger: 'axis',
                 formatter: (params: any) => {
@@ -96,22 +88,12 @@ export default function TradingVolumeChart({ data, title = "Trading Volume (24h)
         }
     }, [data, title])
 
-    if (!data || data.length === 0) {
-        return (
-            <div className="w-full h-100 flex items-center justify-center border rounded-lg">
-                <p className="text-gray-500">No volume data available</p>
-            </div>
-        );
-    }
-
     return (
-        <div className='w-full'>
-            <ReactECharts
-                option={option}
-                style={{ height: '500px', width: '100%' }}
-                notMerge={true}
-                lazyUpdate={true}
-            />
-        </div>
+        <ReactECharts
+            option={option}
+            style={{ height: '500px', width: '100%' }}
+            notMerge={true}
+            lazyUpdate={true}
+        />
     )
 }
